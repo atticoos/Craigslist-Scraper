@@ -27,58 +27,121 @@ craigslistApp
 				});
 			}
 		};
+	})
+	.filter('listingOrderByDate', function(){
+		return function(items){
+			var filtered = [];
+			angular.forEach(items, function(item){
+				filtered.push(item);
+			});
+			filtered.sort(function(a, b){
+				return a.date > b.date;
+			});
+			return filtered;
+		};
 	});
 
 craigslistApp.controller('CraigslistController', function($scope, craigslistService){
 	$scope.query = '';
 	$scope.cities = [];
 	$scope.states = [];
+	$scope.stateSelection = $scope.states;
+	// state grouped listing
 	$scope.listings = [];
+	// listigs by date
+	$scope.dateListings = [];
+	
 	$scope.views = { filterStates: false }
+	$scope.listingFilter = 'state';
 	var searchLock = false;
 	
-	craigslistService.getCities().then(function(result){
-		$scope.cities = result;
-	});
 	
-	craigslistService.getStates().then(function(result){
-		$scope.states = result;
+	craigslistService.getStates().then(function(states){
+		for (var i=0; i<states.length; i++){
+			states[i].selected = true;
+			for (var j=0; j<states[i].cities.length; j++){
+				$scope.cities.push({
+					state: states[i],
+					city: states[i].cities[j]
+				});
+			}
+		}
+		$scope.states = states;
 	});
-	
 	
 	$scope.search = function(){
+		$scope.listings 	= [];
+		$scope.dateListings = [];
 		search();
-		/*
-		var results = craigslistService.search($scope.query, $scope.cities[0]).then(function(result){
-			$scope.listings.push(result);
-		});
-		*/
+	}
+	
+	var search = function(stateIndex, cityIndex){
+		
+		if (!stateIndex) stateIndex = 0;
+		if (!cityIndex) cityIndex = 0;
+		if (searchLock || stateIndex == $scope.states.length-1) return;
+		
+		if (!$scope.states[stateIndex].selected){
+			return search(++stateIndex);
+		}
+		
+		craigslistService
+			.search($scope.query, $scope.states[stateIndex].cities[cityIndex].key)
+			.then(function(listings){
+				$scope.listings.push({
+					state: $scope.states[stateIndex].state,
+					city: $scope.states[stateIndex].cities[cityIndex].name,
+					listings: listings
+				});
+				
+				for (var i=0; i<listings.length; i++){
+					$scope.dateListings.push({
+						state: $scope.states[stateIndex].state,
+						city: $scope.states[stateIndex].cities[cityIndex].name,
+						link: listings[i].link,
+						date: new Date(listings[i].date)
+					});		
+				}
+				
+				
+				if (cityIndex == $scope.states[stateIndex].cities.length - 1){
+					return search(++stateIndex);
+				}
+				return search(stateIndex, ++cityIndex);
+			});
+	}
+	
+	$scope.cityCountFilter = function(item){
+		return item.state.selected;
+	}
+	$scope.cityCount = function(){
+		var count = 0;
+		for (var i=0; i<$scope.states; $i++){
+			if ($scope.states[i].selected){
+				count += ($scope.states[i].cities.length-1);
+				console.log($scope.states[i].cities.length);
+			}
+		}
+		return count;
 	}
 	
 	$scope.stop = function(){
 		searchLock = true;
 	}
 	
-	
-	var search = function(stateIndex, cityIndex){
-		
-		if (!stateIndex) stateIndex = 0;
-		if (!cityIndex) cityIndex = 0;
-		if (searchLock || stateIndex == $scope.states.length) return;
-
-		craigslistService
-			.search($scope.query, $scope.states[stateIndex].cities[cityIndex].key)
-			.then(function(result){
-				$scope.listings.push({
-					state: $scope.states[stateIndex].state,
-					city: $scope.states[stateIndex].cities[cityIndex].name,
-					listings: result
-				});
-				if (cityIndex == $scope.states[stateIndex].cities.length - 1){
-					return search(++stateIndex);
-				}
-				search(stateIndex, ++cityIndex);
-			});
+	$scope.toggleDateFilter = function(){
+		$scope.listingFilter = 'date';
 	}
+	$scope.toggleStateFilter = function(){
+		$scope.listingFilter = 'state';
+	}
+	var toggleStates = true;
+	$scope.toggleAllStates = function(){
+		toggleStates = !toggleStates;
+		for (var i=0; i<$scope.states.length; i++){
+			$scope.states[i].selected = toggleStates;
+		}
+	}
+	
 	
 });

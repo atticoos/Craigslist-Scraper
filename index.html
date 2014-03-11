@@ -4,16 +4,26 @@
 		<title>Scraper</title>
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+		<link rel="stylesheet" href="/style.css">
 		
 	</head>
 	<body ng-controller="CraigslistController">
+		<header class="navbar navbar-default">
+			<div class="container">
+				<div class="navbar-header">
+					<a href="#" class="navbar-brand">CL Scraper</a>
+				</div>
+			</div>
+		</header>
+	
+	
 		<div class="container">
 			<div class="row">
 				<div class="col-md-12">
-					<h2>CL Scraper</h2>
-					
-					
 					<div class="panel panel-default">
+					<div class="panel-heading">
+							<h3 class="panel-title">Find listings across all of Craigslist</h3>
+						</div>
 						<div class="panel-body">
 												
 							<form class="form-inline" role="form">
@@ -35,19 +45,19 @@
 							<a href="#" ng-click="views.states = !views.states">(+) Filter States</a>
 							
 							<div ng-show="views.states">
+								<a href="#" ng-click="toggleAllStates()">Toggle All</a><br/>								
 								<label ng-repeat="state in states">
-									<input type="checkbox" /> {{state.state}}
+									<input type="checkbox" ng-model="state.selected" /> {{state.state}}
 								</label>
 							</div>
 						</div>
 					</div>
 					
 					
-					Searching <span id="city-index" ng-bind="listings.length"></span> of <span id="city-total" ng-bind="cities.length">0</span> cities.
+					Searching <span id="city-index" ng-bind="listings.length"></span> of <span id="city-total" ng-bind="(cities | filter:cityCountFilter).length">0</span> cities.
 					
 					<div class="progress">
-					  <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: {{ (listings.length/cities.length) * 100 }}%;">
-					    <span class="sr-only"></span>
+					  <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: {{ (listings.length/(cities | filter:cityCountFilter).length) * 100 }}%;">
 					  </div>
 					</div>	
 			
@@ -57,27 +67,51 @@
 					<div class="panel panel-default">
 						<div class="panel-heading">
 							<h3 class="panel-title">Results</h3>
+							Filter by: <a href="#" ng-click="toggleDateFilter()">Date</a> | <a href="#" ng-click="toggleStateFilter()">State</a>
 						</div>
 						<div class="panel-body">
-						
-							<div ng-repeat="group in listings">
-								<h3>{{group.state}} - {{group.city}}</h3>
-								
+							
+							<div ng-show="listingFilter == 'state'">
+								<div ng-repeat="group in listings">
+									<h3>{{group.state}} - {{group.city}}</h3>
+									
+									<table class="table">
+										<thead>
+											<tr>
+												<th>Date</th>
+												<th>Listing</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr ng-repeat="listing in group.listings | orderBy: '-date'">
+												<td ng-bind="listing.date | date:'MMM d'"></td>
+												<td><a href="{{listing.link.href}}">{{listing.link.title}}</td>
+											</tr>
+										</tboy>
+									</table>
+								</div>
+							</div>
+							
+							<div ng-show="listingFilter == 'date'">
 								<table class="table">
 									<thead>
 										<tr>
 											<th>Date</th>
 											<th>Listing</th>
+											<th>Location</th>
 										</tr>
 									</thead>
 									<tbody>
-										<tr ng-repeat="listing in group.listings">
-											<td ng-bind="listing.date"></td>
-											<td><a href="{{listing.link.href}}">{{listing.link.title}}</td>
+										<tr ng-repeat="listing in dateListings | orderBy: '-date'">
+											<td>{{listing.date | date:'MMM d'}}</td>
+											<td><a href="{{listing.link.href}}" target="_blank">{{listing.link.title}}</a></td>
+											<td>{{listing.state}} - {{listing.city}}</td>
 										</tr>
-									</tboy>
+									</tbody>
 								</table>
 							</div>
+							
+							
 						</div>
 					</div>
 				</div>

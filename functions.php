@@ -17,33 +17,40 @@
 	}
 	
 	
-	function getStates(){
-		$html = file_get_html('http://www.craigslist.com');
-		
-		$container = $html->find('.colmask');
-		$html = str_get_html($container[0]);
-		
-		
-		$states = array();
-		$n=0;
-		foreach($html->find('.box') as $column){
-
-			foreach($column->children() as $i=>$child){
-				if ($i%2==0){
-					$states[$n] = array('state'	=> $child->plaintext, 'cities' => array() );
-				} else {
-					foreach($child->find('a') as $link){
-						$states[$n]['cities'][] = array(
-							'name'	=> $link->plaintext,
-							'link'	=> $link->href,
-							'key'	=> str_replace(".craigslist.org", "", str_replace("http://", "", $link->href))
-						);
+	function getStates($refresh = false){
+		if ($refresh){
+			$html = file_get_html('http://www.craigslist.com');
+			
+			$container = $html->find('.colmask');
+			$html = str_get_html($container[0]);
+			
+			
+			$states = array();
+			$n=0;
+			foreach($html->find('.box') as $column){
+	
+				foreach($column->children() as $i=>$child){
+					if ($i%2==0){
+						$states[$n] = array('state'	=> $child->plaintext, 'cities' => array() );
+					} else {
+						foreach($child->find('a') as $link){
+							$states[$n]['cities'][] = array(
+								'name'	=> $link->plaintext,
+								'link'	=> $link->href,
+								'key'	=> str_replace(".craigslist.org", "", str_replace("http://", "", $link->href))
+							);
+						}
+						$n++;
 					}
-					$n++;
 				}
 			}
+			$states = json_encode($states);
+			file_put_contents('states.txt', $states);
+		} else {
+			$states = file_get_contents('states.txt');
 		}
-		echo json_encode($states);
+		
+		echo $states;
 	}
 	
 	
@@ -75,7 +82,7 @@
 					'href'	=> $link[0]->href,
 					'title'	=> $link[0]->plaintext
 				),
-				'date'	=> $date[0]->plaintext
+				'date'	=> date("Y-m-d", strtotime($date[0]->plaintext))
 			);
 		}
 		
