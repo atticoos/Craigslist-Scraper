@@ -1,5 +1,8 @@
 <h2>Craigslist Scraper</h2>
 
+<p>This application allows for searching across all Craigslist US states & cities under web jobs</p>
+
+
 <h3>Files</h3>
 
 <ul>
