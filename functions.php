@@ -9,8 +9,41 @@
 		case 'getCities':
 			getCities();
 			break;
+			
+		case 'getStates':
+			getStates();
 		
 		exit(0);
+	}
+	
+	
+	function getStates(){
+		$html = file_get_html('http://www.craigslist.com');
+		
+		$container = $html->find('.colmask');
+		$html = str_get_html($container[0]);
+		
+		
+		$states = array();
+		$n=0;
+		foreach($html->find('.box') as $column){
+
+			foreach($column->children() as $i=>$child){
+				if ($i%2==0){
+					$states[$n] = array('state'	=> $child->plaintext, 'cities' => array() );
+				} else {
+					foreach($child->find('a') as $link){
+						$states[$n]['cities'][] = array(
+							'name'	=> $link->plaintext,
+							'link'	=> $link->href,
+							'key'	=> str_replace(".craigslist.org", "", str_replace("http://", "", $link->href))
+						);
+					}
+					$n++;
+				}
+			}
+		}
+		echo json_encode($states);
 	}
 	
 	

@@ -36,22 +36,31 @@
 								<div class="form-group">
 									<input type="button" id="stop" class="btn btn-danger" value="Stop" ng-click="stop()" />
 								</div>
+								<div class="form-group">
+								</div>
 							</form>
+							<input type="checkbox" id="contract" name="contract" />
+							<label for="contract">Contract-Only</label>
 							<br/>
-							Searching <span id="city-index" ng-bind="listings.length"></span> of <span id="city-total" ng-bind="cities.length">0</span> cities.
+							<a href="#" ng-click="views.states = !views.states">(+) Filter States</a>
 							
-							<div class="progress">
-							  <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: {{ (listings.length/cities.length) * 100 }}%;">
-							    <span class="sr-only"></span>
-							  </div>
+							<div ng-show="views.states">
+								<label ng-repeat="state in states">
+									<input type="checkbox" /> {{state.state}}
+								</label>
 							</div>
-							
 						</div>
 					</div>
 					
 					
-							
-				
+					Searching <span id="city-index" ng-bind="listings.length"></span> of <span id="city-total" ng-bind="cities.length">0</span> cities.
+					
+					<div class="progress">
+					  <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: {{ (listings.length/cities.length) * 100 }}%;">
+					    <span class="sr-only"></span>
+					  </div>
+					</div>	
+			
 				
 				
 					
@@ -62,7 +71,7 @@
 						<div class="panel-body">
 						
 							<div ng-repeat="group in listings">
-								<h3 ng-bind="group.city"></h3>
+								<h3>{{group.state}} - {{group.city}}</h3>
 								
 								<table class="table">
 									<thead>
