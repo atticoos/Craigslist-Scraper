@@ -3,20 +3,20 @@
 	$cities = explode(",", $cities);
 ?>
 <!DOCTYPE html>
-<html>
+<html ng-app="craigslist">
 	<head>
 		<title>Scraper</title>
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular.min.js"></script>
+		<script type="text/javascript" src="/js/service.js"></script>
+		<script type="text/javascript" src="/js/controller.js"></script>
 		<!-- Latest compiled and minified CSS -->
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
 		
 		<!-- Optional theme -->
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
 		
-		<!-- Latest compiled and minified JavaScript -->
-		<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 	</head>
-	<body>
+	<body ng-controller="CraigslistController">
 		<div class="container">
 			<div class="row">
 				<div class="col-md-12">
@@ -28,14 +28,24 @@
 												
 							<form class="form-inline" role="form">
 								<div class="form-group">
-									<input type="text" id="query" class="form-control" placeholder="Search term" /> 
+									<input type="text" id="query" class="form-control" placeholder="Search term" ng-model="query" /> 
 								</div>
 								<div class="form-group">
-									<input type="button" id="search" class="btn btn-default" value="Search" />
+									<input type="button" id="search" class="btn btn-default" value="Search" ng-click="search()" />
+								</div>
+								<div class="form-group">
+									<input type="button" id="stop" class="btn btn-danger" value="Stop" ng-click="stop()" />
 								</div>
 							</form>
 							<br/>
-							Searching <span id="city-index">0</span> of <span id="city-total">0</span> cities.
+							Searching <span id="city-index" ng-bind="listings.length"></span> of <span id="city-total" ng-bind="cities.length">0</span> cities.
+							
+							<div class="progress">
+							  <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: {{ (listings.length/cities.length) * 100 }}%;">
+							    <span class="sr-only"></span>
+							  </div>
+							</div>
+							
 						</div>
 					</div>
 					
@@ -43,14 +53,31 @@
 							
 				
 				
-					<div id="results">
+				
+					
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">Results</h3>
+						</div>
+						<div class="panel-body">
 						
-						<div class="panel panel-default">
-							<div class="panel-heading">
-								<h3 class="panel-title">Results</h3>
-							</div>
-							<div class="panel-body">
+							<div ng-repeat="group in listings">
+								<h3 ng-bind="group.city"></h3>
 								
+								<table class="table">
+									<thead>
+										<tr>
+											<th>Date</th>
+											<th>Listing</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr ng-repeat="listing in group.listings">
+											<td ng-bind="listing.date"></td>
+											<td><a href="{{listing.link.href}}">{{listing.link.title}}</td>
+										</tr>
+									</tboy>
+								</table>
 							</div>
 						</div>
 					</div>
@@ -63,6 +90,7 @@
 		
 		</div>
 		
+		<?php if (false): ?>
 		<script type="text/javascript">
 			(function($){
 				
@@ -73,6 +101,11 @@
 					
 					
 					this.renderResults = function(results, index){
+					
+						
+					
+					
+					
 						$("#city-index").html(index);
 						$("#results").append(results);
 					}
@@ -113,7 +146,7 @@
 				
 			})(jQuery);
 		</script>
-		
+		<?php endif; ?>
 		
 	</body>
 </html>
