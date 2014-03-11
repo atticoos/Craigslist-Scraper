@@ -114,16 +114,6 @@ craigslistApp.controller('CraigslistController', function($scope, craigslistServ
 	$scope.cityCountFilter = function(item){
 		return item.state.selected;
 	}
-	$scope.cityCount = function(){
-		var count = 0;
-		for (var i=0; i<$scope.states; $i++){
-			if ($scope.states[i].selected){
-				count += ($scope.states[i].cities.length-1);
-				console.log($scope.states[i].cities.length);
-			}
-		}
-		return count;
-	}
 	
 	$scope.stop = function(){
 		searchLock = true;
