@@ -4,7 +4,7 @@
 	
 	switch($_GET['action']){
 		case 'search':
-			searchCity($_POST['city'], $_POST['query']);
+			searchCity($_POST['city'], $_POST['query'], $_POST['contractor']);
 			break;
 		case 'getCities':
 			getCities();
@@ -63,9 +63,13 @@
 	}
 	
 	
-	function searchCity($city, $query){
+	function searchCity($city, $query, $contractor){
 		
 		$query = "http://$city.craigslist.com/search/web?query=$query";
+		
+		if ($contractor){
+			$query .= "&addTwo=contract";
+		}
 
 		$html = file_get_html($query);
 		$rows = $html->find('.row');

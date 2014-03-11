@@ -15,10 +15,11 @@ craigslistApp
 						return result.data;
 					});
 			},
-			search: function(query, city){
+			search: function(query, city, contractor){
+				contractor = contractor ? 'true' : '';
 				return $http({
 					url: '/api/search', 
-					data: { query: query, city: city },
+					data: { query: query, city: city, contractor:contractor },
 					method: 'POST',
 					headers: {'Content-Type': 'application/x-www-form-urlencoded'}
 				})
@@ -28,21 +29,15 @@ craigslistApp
 			}
 		};
 	})
-	.filter('listingOrderByDate', function(){
-		return function(items){
-			var filtered = [];
-			angular.forEach(items, function(item){
-				filtered.push(item);
-			});
-			filtered.sort(function(a, b){
-				return a.date > b.date;
-			});
-			return filtered;
-		};
+	.filter('iff', function(){
+		return function(input, trueVal, falseVal){
+			return input? trueVal : falseVal;
+		}
 	});
 
 craigslistApp.controller('CraigslistController', function($scope, craigslistService){
 	$scope.query = '';
+	$scope.contractor;
 	$scope.cities = [];
 	$scope.states = [];
 	$scope.stateSelection = $scope.states;
@@ -52,8 +47,8 @@ craigslistApp.controller('CraigslistController', function($scope, craigslistServ
 	$scope.dateListings = [];
 	
 	$scope.views = { filterStates: false }
-	$scope.listingFilter = 'state';
-	var searchLock = false;
+	$scope.listingFilter = 'date';
+	$scope.searching = false;
 	
 	
 	craigslistService.getStates().then(function(states){
@@ -72,6 +67,7 @@ craigslistApp.controller('CraigslistController', function($scope, craigslistServ
 	$scope.search = function(){
 		$scope.listings 	= [];
 		$scope.dateListings = [];
+		$scope.searching 	= true;
 		search();
 	}
 	
@@ -79,21 +75,21 @@ craigslistApp.controller('CraigslistController', function($scope, craigslistServ
 		
 		if (!stateIndex) stateIndex = 0;
 		if (!cityIndex) cityIndex = 0;
-		if (searchLock || stateIndex == $scope.states.length-1) return;
+		if (!$scope.searching || stateIndex == $scope.states.length-1) return;
 		
 		if (!$scope.states[stateIndex].selected){
 			return search(++stateIndex);
 		}
 		
 		craigslistService
-			.search($scope.query, $scope.states[stateIndex].cities[cityIndex].key)
+			.search($scope.query, $scope.states[stateIndex].cities[cityIndex].key, $scope.contractor)
 			.then(function(listings){
 				$scope.listings.push({
 					state: $scope.states[stateIndex].state,
 					city: $scope.states[stateIndex].cities[cityIndex].name,
 					listings: listings
 				});
-				
+				// OPTIMIZE LATER - remove duplicate dataset and restructure original model for multiple view arrangements
 				for (var i=0; i<listings.length; i++){
 					$scope.dateListings.push({
 						state: $scope.states[stateIndex].state,
@@ -116,7 +112,7 @@ craigslistApp.controller('CraigslistController', function($scope, craigslistServ
 	}
 	
 	$scope.stop = function(){
-		searchLock = true;
+		$scope.searching = false;
 	}
 	
 	$scope.toggleDateFilter = function(){
