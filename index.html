@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html ng-app="craigslist">
+	<head>
+		<title>Scraper</title>
+		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+		
+	</head>
+	<body ng-controller="CraigslistController">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<h2>CL Scraper</h2>
+					
+					
+					<div class="panel panel-default">
+						<div class="panel-body">
+												
+							<form class="form-inline" role="form">
+								<div class="form-group">
+									<input type="text" id="query" class="form-control" placeholder="Search term" ng-model="query" /> 
+								</div>
+								<div class="form-group">
+									<input type="button" id="search" class="btn btn-default" value="Search" ng-click="search()" />
+								</div>
+								<div class="form-group">
+									<input type="button" id="stop" class="btn btn-danger" value="Stop" ng-click="stop()" />
+								</div>
+								<div class="form-group">
+								</div>
+							</form>
+							<input type="checkbox" id="contract" name="contract" />
+							<label for="contract">Contract-Only</label>
+							<br/>
+							<a href="#" ng-click="views.states = !views.states">(+) Filter States</a>
+							
+							<div ng-show="views.states">
+								<label ng-repeat="state in states">
+									<input type="checkbox" /> {{state.state}}
+								</label>
+							</div>
+						</div>
+					</div>
+					
+					
+					Searching <span id="city-index" ng-bind="listings.length"></span> of <span id="city-total" ng-bind="cities.length">0</span> cities.
+					
+					<div class="progress">
+					  <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: {{ (listings.length/cities.length) * 100 }}%;">
+					    <span class="sr-only"></span>
+					  </div>
+					</div>	
+			
+				
+				
+					
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">Results</h3>
+						</div>
+						<div class="panel-body">
+						
+							<div ng-repeat="group in listings">
+								<h3>{{group.state}} - {{group.city}}</h3>
+								
+								<table class="table">
+									<thead>
+										<tr>
+											<th>Date</th>
+											<th>Listing</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr ng-repeat="listing in group.listings">
+											<td ng-bind="listing.date"></td>
+											<td><a href="{{listing.link.href}}">{{listing.link.title}}</td>
+										</tr>
+									</tboy>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+		
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular.min.js"></script>
+		<script type="text/javascript" src="/angular_app.js"></script>		
+	</body>
+</html>
